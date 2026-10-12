@@ -35,6 +35,10 @@ class ProductCreate(BaseModel):
     weight: str | None = None
 
 
+class ProductUpdate(ProductCreate):
+    pass
+
+
 class ProductOut(BaseModel):
     id: int
     name: str
@@ -55,7 +59,3 @@ class ProductOut(BaseModel):
 
     class Config:
         orm_mode = True
-
-
-class ProductUpdate(ProductCreate):
-    pass

@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_active_user
 from app.db.session import get_db
-from app.models.product import Product
-from app.models.wishlist import WishlistItem
+from app.models.cart import WishlistItem
+from app.models.catalog import Product
 
 router = APIRouter()
 
@@ -12,7 +12,7 @@ router = APIRouter()
 @router.get("")
 def get_wishlist(current_user=Depends(get_current_active_user), db: Session = Depends(get_db)):
     items = db.query(WishlistItem).filter(WishlistItem.user_id == current_user.id).all()
-    return [{"id": i.id, "product_id": i.product_id, "product": db.query(Product).filter(Product.id == i.product_id).first()} for i in items]
+    return [{"id": item.id, "product_id": item.product_id} for item in items]
 
 
 @router.post("")
@@ -21,7 +21,7 @@ def add_to_wishlist(product_id: int, current_user=Depends(get_current_active_use
         raise HTTPException(status_code=404, detail="Product not found")
     existing = db.query(WishlistItem).filter(WishlistItem.user_id == current_user.id, WishlistItem.product_id == product_id).first()
     if existing:
-        return {"message": "Already in wishlist"}
+        return {"message": "Product already in wishlist"}
     item = WishlistItem(user_id=current_user.id, product_id=product_id)
     db.add(item)
     db.commit()

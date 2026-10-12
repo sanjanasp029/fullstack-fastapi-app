@@ -9,5 +9,5 @@ router = APIRouter()
 
 
 @router.get("/me")
-def get_my_profile(current_user: User = Depends(get_current_active_user)):
+def get_profile(current_user: User = Depends(get_current_active_user)):
     return current_user

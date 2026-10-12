@@ -10,8 +10,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/chocolate_store"
     FRONTEND_URL: str = "http://localhost:5173"
     CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:3000"]
-    STRIPE_SECRET_KEY: str = ""
     STRIPE_PUBLIC_KEY: str = ""
+    STRIPE_SECRET_KEY: str = ""
     STRIPE_WEBHOOK_SECRET: str = ""
 
     class Config:

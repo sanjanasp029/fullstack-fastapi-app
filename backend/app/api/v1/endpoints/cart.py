@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_active_user
 from app.db.session import get_db
-from app.models.product import Product
 from app.models.cart import CartItem
-from app.schemas.cart import CartItemCreate, CartItemOut, CartSummary
+from app.models.catalog import Product
+from app.schemas.cart import CartItemCreate, CartSummary
 
 router = APIRouter()
 
@@ -17,7 +17,7 @@ def get_cart(current_user=Depends(get_current_active_user), db: Session = Depend
     subtotal = 0.0
     for item in items:
         product = db.query(Product).filter(Product.id == item.product_id).first()
-        if product is None:
+        if not product:
             continue
         line_total = product.price * item.quantity
         subtotal += line_total
@@ -40,14 +40,13 @@ def add_item(payload: CartItemCreate, current_user=Depends(get_current_active_us
     if payload.quantity > product.stock:
         raise HTTPException(status_code=400, detail="Not enough stock available")
 
-    cart_item = db.query(CartItem).filter(CartItem.user_id == current_user.id, CartItem.product_id == payload.product_id).first()
-    if cart_item:
-        cart_item.quantity += payload.quantity
+    item = db.query(CartItem).filter(CartItem.user_id == current_user.id, CartItem.product_id == payload.product_id).first()
+    if item:
+        item.quantity += payload.quantity
     else:
-        cart_item = CartItem(user_id=current_user.id, product_id=payload.product_id, quantity=payload.quantity)
-        db.add(cart_item)
+        item = CartItem(user_id=current_user.id, product_id=payload.product_id, quantity=payload.quantity)
+        db.add(item)
     db.commit()
-    db.refresh(cart_item)
     return get_cart(current_user=current_user, db=db)
 
 
@@ -72,3 +71,10 @@ def remove_item(item_id: int, current_user=Depends(get_current_active_user), db:
     db.delete(item)
     db.commit()
     return get_cart(current_user=current_user, db=db)
+
+
+@router.delete("/clear", response_model=dict)
+def clear_cart(current_user=Depends(get_current_active_user), db: Session = Depends(get_db)):
+    db.query(CartItem).filter(CartItem.user_id == current_user.id).delete()
+    db.commit()
+    return {"message": "Cart cleared"}

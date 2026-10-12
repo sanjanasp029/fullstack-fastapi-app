@@ -1,11 +1,9 @@
-from typing import List
-
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_admin_user, get_current_active_user
 from app.db.session import get_db
-from app.models.product import Product, Category, Brand
+from app.models.catalog import Product, Category, Brand
 from app.schemas.product import ProductCreate, ProductOut, ProductUpdate
 
 router = APIRouter()
@@ -37,6 +35,16 @@ def list_products(
     return query.order_by(Product.id.desc()).all()
 
 
+@router.get("/categories", response_model=list)
+def get_categories(db: Session = Depends(get_db)):
+    return db.query(Category).all()
+
+
+@router.get("/brands", response_model=list)
+def get_brands(db: Session = Depends(get_db)):
+    return db.query(Brand).all()
+
+
 @router.get("/{product_id}", response_model=ProductOut)
 def get_product(product_id: int, db: Session = Depends(get_db)):
     product = db.query(Product).filter(Product.id == product_id).first()
@@ -46,7 +54,11 @@ def get_product(product_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=ProductOut, status_code=status.HTTP_201_CREATED)
-def create_product(payload: ProductCreate, db: Session = Depends(get_db), admin: bool = Depends(get_admin_user)):
+def create_product(
+    payload: ProductCreate,
+    db: Session = Depends(get_db),
+    admin: bool = Depends(get_admin_user),
+):
     product = Product(**payload.model_dump())
     db.add(product)
     db.commit()
@@ -55,7 +67,12 @@ def create_product(payload: ProductCreate, db: Session = Depends(get_db), admin:
 
 
 @router.put("/{product_id}", response_model=ProductOut)
-def update_product(product_id: int, payload: ProductUpdate, db: Session = Depends(get_db), admin: bool = Depends(get_admin_user)):
+def update_product(
+    product_id: int,
+    payload: ProductUpdate,
+    db: Session = Depends(get_db),
+    admin: bool = Depends(get_admin_user),
+):
     product = db.query(Product).filter(Product.id == product_id).first()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -67,19 +84,13 @@ def update_product(product_id: int, payload: ProductUpdate, db: Session = Depend
 
 
 @router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_product(product_id: int, db: Session = Depends(get_db), admin: bool = Depends(get_admin_user)):
+def delete_product(
+    product_id: int,
+    db: Session = Depends(get_db),
+    admin: bool = Depends(get_admin_user),
+):
     product = db.query(Product).filter(Product.id == product_id).first()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     db.delete(product)
     db.commit()
-
-
-@router.get("/categories", response_model=list)
-def get_categories(db: Session = Depends(get_db)):
-    return db.query(Category).all()
-
-
-@router.get("/brands", response_model=list)
-def get_brands(db: Session = Depends(get_db)):
-    return db.query(Brand).all()

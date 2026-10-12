@@ -16,7 +16,7 @@ services:
       context: ./backend
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/chocolate_store
-      SECRET_KEY: "change-me-in-production"
+      SECRET_KEY: change-me-in-production-use-a-long-random-string
       CORS_ORIGINS: '["http://localhost:5173"]'
     ports:
       - "8000:8000"

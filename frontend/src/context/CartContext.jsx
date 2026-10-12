@@ -20,7 +20,9 @@ export function CartProvider({ children }) {
     }
   };
 
-  useEffect(() => { refreshCart(); }, []);
+  useEffect(() => {
+    refreshCart();
+  }, []);
 
   return <CartContext.Provider value={{ cart, refreshCart }}>{children}</CartContext.Provider>;
 }

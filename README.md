@@ -1,22 +1,21 @@
 # Chocolate Store E-commerce Application
 
-A full-stack premium chocolate store built with FastAPI, PostgreSQL, and React.
+A full-stack chocolate store web app built with FastAPI and React.
 
 ## Features
-- Customer shopping experience with catalog, cart, checkout, and order tracking
-- JWT authentication for customers and admin
-- Admin dashboard for products and sales summary
-- PostgreSQL-backed data model
-- Swagger UI for API documentation
-- Docker setup for local environment
+- Product catalog with filtering and search
+- Shopping cart and wishlist
+- JWT auth and admin access
+- Orders and checkout flow
+- Swagger API docs
+- PostgreSQL + SQLAlchemy
 
 ## Stack
 - Backend: Python, FastAPI, SQLAlchemy, PostgreSQL
 - Frontend: React, Vite, CSS
 - Auth: JWT
-- Payment: Stripe-ready test-mode integration for future extension
 
-## Local setup
+## Quick start
 
 ### Backend
 ```bash
@@ -36,21 +35,17 @@ cp .env.example .env
 npm run dev -- --host 0.0.0.0 --port 5173
 ```
 
-### Database
-Create a PostgreSQL database named `chocolate_store` and ensure your DATABASE_URL matches it.
-
 ### Docker
 ```bash
 docker compose up --build
 ```
 
-### Swagger
-Visit `http://localhost:8000/docs`
+## Swagger
+Open `http://localhost:8000/docs`
 
-## Default admin account
+## Default admin
 - Email: `admin@chocolateshop.com`
 - Password: `admin123`
 
 ## Notes
-- The frontend connects to the backend via `VITE_API_URL`.
-- This project is built as a working MVP for a chocolate e-commerce application.
+This is a working MVP suitable for local development and extension.
