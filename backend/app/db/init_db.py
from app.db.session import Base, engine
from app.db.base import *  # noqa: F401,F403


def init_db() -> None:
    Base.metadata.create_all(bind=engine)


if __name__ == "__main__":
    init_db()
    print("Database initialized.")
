@@ -1,0 +1,228 @@
+from sqlalchemy import Column, Integer, String, Text, Float, DateTime, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+
+from app.db.session import Base
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(150), nullable=False)
+    email = Column(String(150), unique=True, index=True, nullable=False)
+    phone = Column(String(50), nullable=True)
+    hashed_password = Column(String(255), nullable=False)
+    is_active = Column(Boolean, default=True)
+    is_admin = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    addresses = relationship("Address", back_populates="user", cascade="all, delete-orphan")
+    cart_items = relationship("CartItem", back_populates="user", cascade="all, delete-orphan")
+    wishlist_items = relationship("WishlistItem", back_populates="user", cascade="all, delete-orphan")
+    orders = relationship("Order", back_populates="user")
+    reviews = relationship("ProductReview", back_populates="user")
+
+
+class Address(Base):
+    __tablename__ = "addresses"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    label = Column(String(100), nullable=False)
+    street = Column(String(255), nullable=False)
+    city = Column(String(100), nullable=False)
+    state = Column(String(100), nullable=False)
+    postal_code = Column(String(20), nullable=False)
+    country = Column(String(100), nullable=False)
+    is_default = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship("User", back_populates="addresses")
+
+
+class Category(Base):
+    __tablename__ = "categories"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), unique=True, nullable=False)
+    description = Column(Text, nullable=True)
+
+    products = relationship("Product", back_populates="category")
+
+
+class Brand(Base):
+    __tablename__ = "brands"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), unique=True, nullable=False)
+    description = Column(Text, nullable=True)
+
+    products = relationship("Product", back_populates="brand")
+
+
+class Product(Base):
+    __tablename__ = "products"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(200), nullable=False, index=True)
+    description = Column(Text, nullable=False)
+    price = Column(Float, nullable=False)
+    original_price = Column(Float, nullable=True)
+    stock = Column(Integer, default=0)
+    image_url = Column(String(500), nullable=True)
+    category_id = Column(Integer, ForeignKey("categories.id"), nullable=False)
+    brand_id = Column(Integer, ForeignKey("brands.id"), nullable=False)
+    is_featured = Column(Boolean, default=False)
+    is_bestseller = Column(Boolean, default=False)
+    is_active = Column(Boolean, default=True)
+    rating = Column(Float, default=0.0)
+    ingredients = Column(Text, nullable=True)
+    allergens = Column(Text, nullable=True)
+    weight = Column(String(50), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    category = relationship("Category", back_populates="products")
+    brand = relationship("Brand", back_populates="products")
+    cart_items = relationship("CartItem", back_populates="product")
+    orders = relationship("OrderItem", back_populates="product")
+    reviews = relationship("ProductReview", back_populates="product")
+
+
+class ProductReview(Base):
+    __tablename__ = "product_reviews"
+
+    id = Column(Integer, primary_key=True, index=True)
+    product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    rating = Column(Integer, nullable=False)
+    comment = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    product = relationship("Product", back_populates="reviews")
+    user = relationship("User", back_populates="reviews")
+
+
+class CartItem(Base):
+    __tablename__ = "cart_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
+    quantity = Column(Integer, default=1)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    user = relationship("User", back_populates="cart_items")
+    product = relationship("Product", back_populates="cart_items")
+
+
+class WishlistItem(Base):
+    __tablename__ = "wishlist_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship("User", back_populates="wishlist_items")
+    product = relationship("Product")
+
+
+class Order(Base):
+    __tablename__ = "orders"
+
+    id = Column(Integer, primary_key=True, index=True)
+    order_number = Column(String(50), unique=True, nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    status = Column(String(50), default="Pending")
+    payment_status = Column(String(50), default="Pending")
+    subtotal = Column(Float, nullable=False)
+    shipping_fee = Column(Float, default=0.0)
+    tax = Column(Float, default=0.0)
+    discount = Column(Float, default=0.0)
+    total = Column(Float, nullable=False)
+    shipping_address = Column(Text, nullable=False)
+    payment_method = Column(String(50), default="Card")
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    user = relationship("User", back_populates="orders")
+    items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
+    payment = relationship("Payment", back_populates="order", uselist=False, cascade="all, delete-orphan")
+
+
+class OrderItem(Base):
+    __tablename__ = "order_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    order_id = Column(Integer, ForeignKey("orders.id"), nullable=False)
+    product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
+    quantity = Column(Integer, nullable=False)
+    price = Column(Float, nullable=False)
+    product_name = Column(String(200), nullable=False)
+    product_image = Column(String(500), nullable=True)
+
+    order = relationship("Order", back_populates="items")
+    product = relationship("Product", back_populates="orders")
+
+
+class Payment(Base):
+    __tablename__ = "payments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    order_id = Column(Integer, ForeignKey("orders.id"), nullable=False, unique=True)
+    stripe_payment_intent_id = Column(String(255), nullable=True)
+    amount = Column(Float, nullable=False)
+    currency = Column(String(10), default="usd")
+    status = Column(String(50), default="Pending")
+    provider = Column(String(50), default="stripe")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    order = relationship("Order", back_populates="payment")
+
+
+class InventoryMovement(Base):
+    __tablename__ = "inventory_movements"
+
+    id = Column(Integer, primary_key=True, index=True)
+    product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
+    quantity_change = Column(Integer, nullable=False)
+    movement_type = Column(String(50), nullable=False)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class Coupon(Base):
+    __tablename__ = "coupons"
+
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String(50), unique=True, nullable=False, index=True)
+    description = Column(Text, nullable=True)
+    discount_percent = Column(Float, default=0.0)
+    min_order_value = Column(Float, default=0.0)
+    valid_from = Column(DateTime(timezone=True), server_default=func.now())
+    valid_until = Column(DateTime(timezone=True), nullable=True)
+    is_active = Column(Boolean, default=True)
+    max_uses = Column(Integer, default=1)
+    uses = Column(Integer, default=0)
+
+
+class Address(Base):
+    __tablename__ = "addresses"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    label = Column(String(100), nullable=False)
+    street = Column(String(255), nullable=False)
+    city = Column(String(100), nullable=False)
+    state = Column(String(100), nullable=False)
+    postal_code = Column(String(20), nullable=False)
+    country = Column(String(100), nullable=False)
+    is_default = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship("User", back_populates="addresses")

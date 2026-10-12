@@ -1,0 +1,46 @@
+from pathlib import Path
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.utils import get_openapi
+
+from app.api.v1.router import api_router
+from app.core.config import CORS_ORIGINS, PROJECT_NAME
+from app.db.init_db import init_db
+
+app = FastAPI(title=PROJECT_NAME, version="1.0.0", docs_url="/docs", redoc_url="/redoc")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title=PROJECT_NAME,
+        version="1.0.0",
+        description="Chocolate Store e-commerce API",
+        routes=app.routes,
+    )
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi
+app.include_router(api_router)
+
+
+@app.on_event("startup")
+def startup_event() -> None:
+    init_db()
+
+
+@app.get("/health")
+def health_check() -> dict:
+    return {"status": "healthy"}
