@@ -1,0 +1,79 @@
+:root {
+  --bg: #fffaf5;
+  --panel: #ffffff;
+  --primary: #5b2a1a;
+  --secondary: #c98b5d;
+  --accent: #f5d9c6;
+  --text: #231710;
+  --muted: #66584f;
+  --shadow: 0 16px 40px rgba(59, 29, 12, 0.08);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+}
+
+a { text-decoration: none; color: inherit; }
+img { max-width: 100%; display: block; }
+button, input, textarea, select { font: inherit; }
+.container { width: min(1120px, calc(100% - 32px)); margin: 0 auto; }
+.topbar {
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(91,42,26,0.08);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.nav-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 14px 0; }
+.brand { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--primary); }
+.nav-links, .nav-actions { display: flex; gap: 18px; align-items: center; }
+.nav-btn, .primary-btn, .secondary-btn, .cart-pill {
+  border: none; border-radius: 999px; cursor: pointer; padding: 10px 18px; transition: all 0.2s;
+}
+.primary-btn { background: var(--primary); color: white; }
+.secondary-btn { background: #f0e8e2; color: var(--primary); }
+.nav-btn, .cart-pill { background: #f7efe9; color: var(--primary); }
+.primary-btn.small { padding: 8px 12px; font-size: 0.9rem; }
+.hero-section { background: linear-gradient(135deg, #4d2a20 0%, #8b4f39 100%); color: white; padding: 60px 0; }
+.hero-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 32px; align-items: center; }
+.hero-grid h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 1; margin: 10px 0 18px; font-family: 'Playfair Display', serif; }
+.eyebrow { text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem; opacity: 0.8; }
+.hero-actions { display: flex; gap: 14px; margin-top: 24px; }
+.hero-card img { border-radius: 20px; box-shadow: var(--shadow); }
+.section-head { display: flex; justify-content: space-between; margin-bottom: 26px; align-items: center; }
+.product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 22px; }
+.product-card { background: var(--panel); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow); }
+.product-card img { height: 230px; width: 100%; object-fit: cover; }
+.product-body { padding: 20px; }
+.price-row { display: flex; align-items: center; gap: 12px; margin: 10px 0 14px; }
+.price-row strong { font-size: 1.3rem; color: var(--primary); }
+.price-row span { text-decoration: line-through; opacity: 0.6; }
+.shop-header { display: flex; justify-content: space-between; gap: 18px; align-items: center; margin-bottom: 22px; }
+.search-input, .stack-form input, .stack-form textarea, .checkout-box textarea, .checkout-box select {
+  width: 100%; border: 1px solid #e7d7cf; background: white; border-radius: 12px; padding: 12px 14px; }
+.auth-box, .checkout-box { max-width: 640px; margin: 48px auto; background: white; padding: 28px; box-shadow: var(--shadow); border-radius: 16px; }
+.stack-form { display: grid; gap: 14px; }
+.alert { background: #ffe8e0; padding: 12px; color: #8c2d1f; border-radius: 10px; margin-bottom: 12px; }
+.product-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: center; }
+.product-detail img { border-radius: 20px; }
+.chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; }
+.chip-row span { background: #f7efe9; padding: 8px 12px; border-radius: 999px; }
+.cart-layout { display: grid; grid-template-columns: 1.5fr 0.8fr; gap: 24px; }
+.cart-item, .summary-box, .order-card, .stat-box {
+  background: white; border-radius: 16px; box-shadow: var(--shadow); padding: 20px;
+}
+.summary-line { display: flex; justify-content: space-between; margin: 10px 0; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 18px; }
+.stat-box span { display: block; opacity: .7; }
+.stat-box strong { font-size: 1.9rem; }
+.site-footer { background: #230e0a; color: white; padding: 40px 0; margin-top: 50px; }
+.footer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+@media (max-width: 760px) {
+  .hero-grid, .product-detail-grid, .cart-layout, .footer-grid { grid-template-columns: 1fr; }
+  .nav-row, .nav-links, .nav-actions, .shop-header { flex-direction: column; align-items: flex-start; }
+}
